@@ -24,6 +24,6 @@ Card Deck::robarCarta()
     Card carta = deck[rand() % NUM_CARTAS];
     while (carta.getUsed())
         carta = deck[rand() % NUM_CARTAS];
-    deck[carta.getValue()-1].setUsed(true);
+    deck[carta.getNum()-1].setUsed(true);
     return carta;
 }
