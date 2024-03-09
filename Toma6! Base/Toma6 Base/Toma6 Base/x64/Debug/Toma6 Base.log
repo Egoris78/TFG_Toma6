@@ -1,3 +1,3 @@
 ﻿  Toma6 Base.cpp
-C:\Users\snivi\Documents\TFG\TFG_Toma6\Toma6! Base\Toma6 Base\Toma6 Base\Toma6 Base.cpp(250,15): warning C4244: 'argumento': conversión de 'time_t' a 'unsigned int'; posible pérdida de datos
+C:\Users\snivi\Documents\TFG\TFG_Toma6\Toma6! Base\Toma6 Base\Toma6 Base\Toma6 Base.cpp(318,15): warning C4244: 'argumento': conversión de 'time_t' a 'unsigned int'; posible pérdida de datos
   Toma6 Base.vcxproj -> C:\Users\snivi\Documents\TFG\TFG_Toma6\Toma6! Base\Toma6 Base\x64\Debug\Toma6 Base.exe

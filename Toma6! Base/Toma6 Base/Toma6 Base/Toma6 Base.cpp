@@ -251,9 +251,73 @@ void setTable() {
     }
 }
 
+void printTuto() {
+
+    string Title;
+    Title.append("%%####################################%###%%%%################################################################%%@(%@&%####################%%%%####%%#%"); Title.append("\n");
+    Title.append("%#############################################################################################################%%,,,,,/%&#**##########################*"); Title.append("\n");
+    Title.append("%/,(#########################################################################################################&/,,*////,,,*%&&%#######################*"); Title.append("\n");
+    Title.append("%/*(#######################################################################################################&%,,,////////*,*&&########################*"); Title.append("\n");
+    Title.append("#/,(######################################################################################################&(,,*///////*,,%&################%%&&&&&&%#*"); Title.append("\n");
+    Title.append("#/,(####################################################################################################%&*,,////////,,(&%############%&**,,,,*,*#&##*"); Title.append("\n");
+    Title.append("#/,(##############################################################%#####%%#############################&%,,*///////,,*&%#%&%###########&*/&&&&%**&%##*"); Title.append("\n");
+    Title.append("%/,(####################%&&(,,*%######################%@&&&&&&&&&(,*%&&%*#&%########%&&##&&###########&/,,*//////*,*&&&#*,,*%&%########&*(&&&&/,#&###*"); Title.append("\n");
+    Title.append("%/,(####%&&%##########%@%*,/%,,(%############%&%#####%&*,***/*,,,/%(,,,,(,,#&%&&&(*,,,/#(,,*%&%######%%,,*/////*,,//,,,,*//*,,,%&&#####&*(&@@%,*&%###*"); Title.append("\n");
+    Title.append("#(,(###%&*,*&&#######&&**#@&&*,*&&&%%###%&&(*,,,(&%##&#**&&&&%%@&&&&%%@&@&(,/&,,(%@&&@&@@&&&/,/&#####%&*,*////*,,,,*//////////*,*@%###%%,#@&&/,#&####*"); Title.append("\n");
+    Title.append("#(,(##%&,*%*,,#&%#%##%&/,%&&&#,,*,,*&&(**/&@&@@&&*,#&&/,,,*&&&@&&&&&@@&&&&#,/%,/&&@&&&&@&@&@&,/&%#####&/,,////////////////////*,/&#####%,%&&&**&%####*"); Title.append("\n");
+    Title.append("%(,(#&&,*&&@@%,,#&%##%&#,#&&@@&&&*,*&%,(@&&%%@@@&@&#,*&%,,%&&&*,,(&&%,*&&&(,/%,(@&&@(,,*#&@&&,/&%#####&#,,/////////*,,,,*/////,,%&#####%,,,,,,%&#####*"); Title.append("\n");
+    Title.append("%(,(&&,**&&@&*,/&####%@&*(@@@&&&@*,*&(,%&&&*,,,,%&@%,*&/,*&&&(,,*&&&(,*&&&(,(#,#@&&&(,,,#&&&%**(&&####%%,,///////*,,,,,,/////*,*&%####&(,,*%*,,&&####*"); Title.append("\n");
+    Title.append("%(,(##&&/,,*,,,(&##%##&&**&&@@/,,,,*&**&&&%,,,,*&@&&*,,,,&&&&*,,%&@&*,/&&&/,,**%&&&&/,,#&&@&%/(,*&%###%&,,*////////*,,*//////,,#&###%&/,*&@&&%,,(&%##*"); Title.append("\n");
+    Title.append("#(,(####&/,,*((,&%####&@/,%&@&#,#,,,,,/@&@@@&#/&&&@&*,,&&&@&(,,(@&&#,,(&&&&&,,,(&&@@&&@&@@@&@&&(,%&%###&*,*/////////////////*,*&%####&(,,%&&%*,%&%###*"); Title.append("\n");
+    Title.append("%(,/####&/,%@@&*(&####%@#,#@@@&,,,%&#*,,*%@&@&&&&%*,,,*((((/,,,,,,,,,,#&&@@%,*&#*,*%&&&%/*@@&%/,,(&&###%&(,,,*////////////,,,*#&######%&/,,,,#@%#####*"); Title.append("\n");
+    Title.append("%(,/####&/,%@@@#*&%####&&,/&&@@@&@@@&#,,(*,*%(,,*(&&&&%&&&&&&&&%%%&&**,,,,,,,(&###&(*,,((,,,/&&&%%########%&&/,,,*///*,,,*#&&%##########&%*(@%#######*"); Title.append("\n");
+    Title.append("%(,/####&/,#&&@&,(&#####&&(,,%&&@&@&#*,#%##&/%&%#####################################%##&@%###################%@%*,,,*%&%##################%#########*"); Title.append("\n");
+    Title.append("%(,/####&(,#@@@@/*&&###%##%&&*,**,,,,*#%#########################################################################%&&%################################*"); Title.append("\n");
+    Title.append("%(*/###%&(,(&&@&(,(&#######*.%&&@%%##%#######################################################################################################(###%###*"); Title.append("\n");
+    Title.append("#(,/###,&(,,,*(%&&%%#####(.((((((./######%################################################################################################*,////./###*"); Title.append("\n");
+    cout << Title << endl;
+    string Display;
+    Card cartaTuto = Card(16,1);
+    //top part
+    Display.append(" ----- ");
+    Display.append(" ");
+    Display.append("\n");
+    //number 
+    Display.append("|");
+    Display.append(to_string(cartaTuto.getNum()));
+    if (cartaTuto.getNum() / 10 < 1)
+        Display.append(" ");
+    if (cartaTuto.getNum() / 100 < 1)
+        Display.append(" ");
+    Display.append("  |");
+    Display.append(" <----- Esto es el Numero de la carta");
+    Display.append("\n");
+    //|      |
+    Display.append("|     |");
+    Display.append(" ");
+    Display.append("\n");
+    //|      |
+    Display.append("|     |");
+    Display.append(" ");
+    Display.append("\n");
+    //value
+    Display.append("|    ");
+    Display.append(to_string(cartaTuto.getValue()));
+    Display.append("|");
+    Display.append(" <----- Esto es el valor de la carta");
+    Display.append("\n");
+    //end
+    Display.append(" ----- ");
+    Display.append(" ");
+    Display.append("\n");
+    cout << Display << endl;
+}
+
 int main()
 {
     srand(time(NULL));
+    //tuto 
+    printTuto();
     for (int i = 0; i < NUM_PLAYERS; i++)
     {
         Player player = Player();
@@ -284,15 +348,3 @@ int main()
 
     cout << "The winner is " << players[checkWinner()].getPlayerName() << endl;
 }
-
-
-
-// Ejecutar programa: Ctrl + F5 o menú Depurar > Iniciar sin depurar
-// Depurar programa: F5 o menú Depurar > Iniciar depuración
-
-// Sugerencias para primeros pasos: 1. Use la ventana del Explorador de soluciones para agregar y administrar archivos
-//   2. Use la ventana de Team Explorer para conectar con el control de código fuente
-//   3. Use la ventana de salida para ver la salida de compilación y otros mensajes
-//   4. Use la ventana Lista de errores para ver los errores
-//   5. Vaya a Proyecto > Agregar nuevo elemento para crear nuevos archivos de código, o a Proyecto > Agregar elemento existente para agregar archivos de código existentes al proyecto
-//   6. En el futuro, para volver a abrir este proyecto, vaya a Archivo > Abrir > Proyecto y seleccione el archivo .sln
