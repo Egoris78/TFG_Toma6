@@ -21,7 +21,6 @@ Player players[NUM_PLAYERS];
 list<Card> filas[NUM_FILAS];
 int playersTurn = 0;
 bool endGame = false;
-int tickRate = 0;
 list<Card> cardsPlayed;
 int rounds = 0;
 
@@ -143,7 +142,7 @@ int getPointsFila(int fila) {
 int askFila(int numPlayer) {
     int number = -1;
     cout << players[numPlayer].getPlayerName();
-    cout << "Que fila quieres cambiar.";
+    cout << " que fila quieres cambiar.";
     while (!(cin >> number) || (number < 0 || number > NUM_FILAS)) {
         cin.clear();
         cin.ignore(256, '\n');
@@ -245,6 +244,13 @@ void repartirCartas() {
     }
 }
 
+void setTable() {
+    for (int i = 0; i < NUM_FILAS; i++)
+    {
+        filas[i].push_back(deck.robarCarta());
+    }
+}
+
 int main()
 {
     srand(time(NULL));
@@ -261,20 +267,19 @@ int main()
     }
     repartirCartas();
     //inizializar filas 
-    for (int i = 0; i < NUM_FILAS; i++)
-    {
-        filas[i].push_back(deck.robarCarta());
-    }
+    setTable();
     system("CLS");
     //bucle game 
     display();
     while (!endGame ) { 
         if (players[0].getPlayersHand().getHand().empty()) {
+            deck = Deck();
             repartirCartas();
+            setTable();
+            cardsPlayed.clear();
         }
         playCard();
         nextPlayer();
-        tickRate--;
     }
 
     cout << "The winner is " << players[checkWinner()].getPlayerName() << endl;
