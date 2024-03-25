@@ -1,6 +1,7 @@
 #include <iostream>
 #include "Deck.hpp"
 #include "Player.hpp"
+#include "AI.hpp"
 #include <Windows.h>
 #include <chrono>
 #include <iostream>
@@ -15,7 +16,7 @@ using namespace std::chrono;
 static const int NUM_PLAYERS = 2;
 static const int NUM_FILAS = 4;
 
-
+AI ia;
 Deck deck;
 Player players[NUM_PLAYERS];
 list<Card> filas[NUM_FILAS];
@@ -163,7 +164,13 @@ void setCards() {
         pos =nearValue(cardsPlayed.front().getNum());
         if (pos == -1) {
             int player = cardsPlayed.front().getPlayerId();
-            int fila = askFila(player);
+            int fila;
+            if (players[player].isAi()) {
+                fila = ia.swapFila(filas);
+            }
+            else {
+                fila = askFila(player);
+            }
             players[player].addPoints(getPointsFila(fila));
             changeFila(fila);
         }
@@ -224,7 +231,12 @@ int askCardToPlay() {
 void playCard() {
     if (players[playersTurn].getPlayersHand().getHand().size() > 0) {
         int playedCard = -1;
-        playedCard = askCardToPlay();
+        if (players[playersTurn].isAi()) {
+            playedCard = ia.playCard(players[playersTurn].getPlayersHand(), filas);
+        }
+        else {
+            playedCard = askCardToPlay();
+        }
 
         Card carta;
         carta = players[playersTurn].getCard(playedCard);
@@ -233,6 +245,16 @@ void playCard() {
         carta.setPlayerId(playersTurn);
         cardsPlayed.push_back(carta);
     }
+}
+
+bool askAi() {
+    char response;
+    do
+    {
+        cout << "Quieres que el jugador se una IA [y / n]" << endl;
+        cin >> response;
+    } while (!cin.fail() && response != 'y' && response != 'n');
+    return (response == 'y') ? true : false;
 }
 
 void repartirCartas() {
@@ -318,14 +340,21 @@ int main()
     srand(time(NULL));
     //tuto 
     printTuto();
+    ia = AI(NUM_PLAYERS, NUM_FILAS);
     for (int i = 0; i < NUM_PLAYERS; i++)
     {
         Player player = Player();
-        cout << "Introduce tu nombre Jugador " << i << " : ";
-        string name ="Jorge";
+        cout << "Jugador " << i + 1 << endl;
+        bool IA = askAi();
+        player.setAi(IA);
+        string name ="Jorge",response ="";
         //Cargar nombres
-        cin >> name;
-        cout << endl;
+        if (!IA) {
+            cout << "Introduce tu nombre Jugador " << i + 1 << " : ";
+            cin >> name;
+            cout << endl;
+        }
+        else { name = "boot"; }
         player.setPlayerName(name);
         players[i] = player;
     }
