@@ -16,7 +16,6 @@ using namespace std::chrono;
 static const int NUM_PLAYERS = 2;
 static const int NUM_FILAS = 4;
 
-AI ia;
 Deck deck;
 Player players[NUM_PLAYERS];
 list<Card> filas[NUM_FILAS];
@@ -152,6 +151,23 @@ int askFila(int numPlayer) {
     return number-1;
 }
 
+int askTypeIa() {
+    AI temp =  AI();
+    int number = -1;
+    for (int i = 0; i < temp.listaT.size(); i++)
+    {
+        cout << i+1 << ") " << temp.listaT[i] << "   ";
+    }
+    cout << endl;
+    
+    while (!(cin >> number) || (number < 0 || number > temp.listaT.size())) {
+        cin.clear();
+        cin.ignore(256, '\n');
+        cout << "Tiene que ser un numero del 1 al " << temp.listaT.size() << endl;
+    }
+    return number;
+}
+
 void changeFila(int fila) {
     filas[fila].clear();
     filas[fila].push_back(cardsPlayed.front());
@@ -166,7 +182,7 @@ void setCards() {
             int player = cardsPlayed.front().getPlayerId();
             int fila;
             if (players[player].isAi()) {
-                fila = ia.swapFila(filas);
+                fila = players[player].Ai->swapFila(filas);
             }
             else {
                 fila = askFila(player);
@@ -197,7 +213,7 @@ void endCond() {
 }
 
 int checkWinner() {
-    int winner = -1, wiinnerPoints= players[0].getPoints();
+    int winner = 0, wiinnerPoints= players[0].getPoints();
     for (int i = 1; i < NUM_PLAYERS; i++)
     {
         if (players[i].getPoints() < wiinnerPoints) {
@@ -232,7 +248,7 @@ void playCard() {
     if (players[playersTurn].getPlayersHand().getHand().size() > 0) {
         int playedCard = -1;
         if (players[playersTurn].isAi()) {
-            playedCard = ia.playCard(players[playersTurn].getPlayersHand(), filas);
+            playedCard = players[playersTurn].Ai->playCard(players[playersTurn].getPlayersHand(), filas);
         }
         else {
             playedCard = askCardToPlay();
@@ -340,21 +356,24 @@ int main()
     srand(time(NULL));
     //tuto 
     printTuto();
-    ia = AI(NUM_PLAYERS, NUM_FILAS);
     for (int i = 0; i < NUM_PLAYERS; i++)
     {
         Player player = Player();
         cout << "Jugador " << i + 1 << endl;
         bool IA = askAi();
-        player.setAi(IA);
-        string name ="Jorge",response ="";
+        string name ="Jorge";
         //Cargar nombres
-        if (!IA) {
+        if (IA) {
+            name = "boot";
+            int type = askTypeIa();
+            AI* ia = new AI(NUM_PLAYERS, NUM_FILAS,type);
+            player.setAi(ia);
+        }
+        else {
             cout << "Introduce tu nombre Jugador " << i + 1 << " : ";
             cin >> name;
             cout << endl;
         }
-        else { name = "boot"; }
         player.setPlayerName(name);
         players[i] = player;
     }
@@ -374,6 +393,12 @@ int main()
         playCard();
         nextPlayer();
     }
+    int winner = checkWinner();
+    cout << "The winner is ";
+    if (players[winner].isAi())
+        cout << "the player " << winner + 1;
+    else
+        cout << players[winner].getPlayerName();
+    cout << endl;
 
-    cout << "The winner is " << players[checkWinner()].getPlayerName() << endl;
 }

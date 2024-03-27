@@ -37,5 +37,14 @@ int AI::swapFila(list<Card> filas[4])
 
 int AI::playCard(Hand myHand, list<Card> filas[4])
 {
+    switch (type)
+    {
+    case 1:
+        return playSmallest(myHand, filas);
+        break;
+    case 2:
+    default:
+        break;
+    }
 	return playSmallest(myHand, filas);
 }
