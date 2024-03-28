@@ -14,6 +14,7 @@ public:
 	int swapFila(list<Card> filas[4]);
 	int smallestRowValue(list<Card> filas[4]);
 	int playSmallest(Hand myHand, list<Card> filas[4]);
+	int playNearest(Hand myHand, list<Card> filas[4]);
 	int playCard(Hand, list<Card> filas[4]);
 
 };

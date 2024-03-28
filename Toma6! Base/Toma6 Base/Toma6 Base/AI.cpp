@@ -14,6 +14,26 @@ int AI::playSmallest(Hand myHand, list<Card> filas[4])
     return smallest;
 }
 
+int AI::playNearest(Hand myHand, list<Card> filas[4])
+{
+    int nearest = 1, diff = 100,actual = 1;
+    list<Card> hand = myHand.getHand();
+    for (auto cartaPlayer : hand) {
+        for (int i = 0; i < numFilas; i++)
+        {
+            int actualDif = cartaPlayer.getNum() - filas[i].back().getNum();
+            //Comprueva que el numero sea mas grande que la primera carta y se queda con el de mayor diferencia
+            //Tambien chekea el caso en que haya 5 cartas para no robar la fila.
+            if (actualDif > 0 && actualDif < diff && filas[i].size()<5) {
+                diff = actualDif; 
+                nearest = actual;
+            }
+        }
+        actual++;
+    }
+    return nearest;
+}
+
 int AI::smallestRowValue(list<Card> filas[4])
 {
     int smallest = 100,best = -1;
@@ -43,6 +63,8 @@ int AI::playCard(Hand myHand, list<Card> filas[4])
         return playSmallest(myHand, filas);
         break;
     case 2:
+        return playNearest(myHand, filas);
+        break;
     default:
         break;
     }

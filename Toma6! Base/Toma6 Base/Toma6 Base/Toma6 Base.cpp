@@ -16,6 +16,12 @@ using namespace std::chrono;
 static const int NUM_PLAYERS = 2;
 static const int NUM_FILAS = 4;
 
+//tester part
+bool test = false;
+vector<int> IAPLAYERS{ 2,1 };
+int num_games = 100;
+int winnerCount[NUM_PLAYERS];
+
 Deck deck;
 Player players[NUM_PLAYERS];
 list<Card> filas[NUM_FILAS];
@@ -356,49 +362,89 @@ int main()
     srand(time(NULL));
     //tuto 
     printTuto();
-    for (int i = 0; i < NUM_PLAYERS; i++)
-    {
-        Player player = Player();
-        cout << "Jugador " << i + 1 << endl;
-        bool IA = askAi();
-        string name ="Jorge";
-        //Cargar nombres
-        if (IA) {
-            name = "boot";
-            int type = askTypeIa();
-            AI* ia = new AI(NUM_PLAYERS, NUM_FILAS,type);
-            player.setAi(ia);
+    int it = 0;
+    if (test) {
+        for (int  i = 0; i < NUM_PLAYERS; i++)
+        {
+            winnerCount[i] = 0;
+        }
+    }
+    do{
+        if (test) {
+            for (int i = 0; i < IAPLAYERS.size(); i++)
+            {
+                Player player = Player();
+                string name = "boot";
+                player.setPlayerName(name);
+                AI* ia = new AI(NUM_PLAYERS, NUM_FILAS, IAPLAYERS[i]);
+                player.setAi(ia);
+                players[i] = player;
+            }
         }
         else {
-            cout << "Introduce tu nombre Jugador " << i + 1 << " : ";
-            cin >> name;
-            cout << endl;
+            for (int i = 0; i < NUM_PLAYERS; i++)
+            {
+                Player player = Player();
+                cout << "Jugador " << i + 1 << endl;
+                bool IA = askAi();
+                string name = "Jorge";
+                //Cargar nombres
+                if (IA) {
+                    name = "boot";
+                    int type = askTypeIa();
+                    AI* ia = new AI(NUM_PLAYERS, NUM_FILAS, type);
+                    player.setAi(ia);
+                }
+                else {
+                    cout << "Introduce tu nombre Jugador " << i + 1 << " : ";
+                    cin >> name;
+                    cout << endl;
+                }
+                player.setPlayerName(name);
+                players[i] = player;
+            }
         }
-        player.setPlayerName(name);
-        players[i] = player;
-    }
-    repartirCartas();
-    //inizializar filas 
-    setTable();
-    system("CLS");
-    //bucle game 
-    display();
-    while (!endGame ) { 
-        if (players[0].getPlayersHand().getHand().empty()) {
-            deck = Deck();
-            repartirCartas();
-            setTable();
-            cardsPlayed.clear();
+        endGame = false;
+        deck = Deck();
+        cardsPlayed.clear();
+        repartirCartas();
+        //inizializar filas 
+        setTable();
+        system("CLS");
+        //bucle game 
+        display();
+        while (!endGame) {
+            if (players[0].getPlayersHand().getHand().empty()) {
+                deck = Deck();
+                repartirCartas();
+                setTable();
+                cardsPlayed.clear();
+            }
+            playCard();
+            nextPlayer();
         }
-        playCard();
-        nextPlayer();
+        int winner = checkWinner();
+        if (test) {
+            winnerCount[winner]++;
+        }
+        cout << "The winner is ";
+        if (players[winner].isAi())
+            cout << "the player " << winner + 1;
+        else
+            cout << players[winner].getPlayerName();
+        cout << endl;
+        it++;
+    } while (test && it<num_games);
+    if (test) {
+        system("CLS");
+        AI temp = AI();
+        cout << "From " << num_games <<" games" << endl;
+        for (int i = 0; i < NUM_PLAYERS; i++)
+        {
+            cout << "The player " << i<< " with Ai ";
+            int num = IAPLAYERS[i];
+            cout << temp.listaT[num-1];
+            cout<< " won :" << winnerCount[i] << "times" << endl;
+        }
     }
-    int winner = checkWinner();
-    cout << "The winner is ";
-    if (players[winner].isAi())
-        cout << "the player " << winner + 1;
-    else
-        cout << players[winner].getPlayerName();
-    cout << endl;
-
 }
