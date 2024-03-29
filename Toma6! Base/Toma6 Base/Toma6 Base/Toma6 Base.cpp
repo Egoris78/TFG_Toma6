@@ -17,9 +17,9 @@ static const int NUM_PLAYERS = 2;
 static const int NUM_FILAS = 4;
 
 //tester part
-bool test = false;
-vector<int> IAPLAYERS{ 2,1 };
-int num_games = 100;
+bool test = true;
+vector<int> IAPLAYERS{ 1,2 };
+int num_games = 25;
 int winnerCount[NUM_PLAYERS];
 
 Deck deck;
@@ -29,6 +29,7 @@ int playersTurn = 0;
 bool endGame = false;
 list<Card> cardsPlayed;
 int rounds = 0;
+vector<int> allPlayedCards;
 
 void pritnListOfCards(list<Card> cards,bool hand) {
     string Display;
@@ -205,6 +206,7 @@ void setCards() {
                 filas[pos].push_back(cardsPlayed.front());
             }
         }
+        allPlayedCards.push_back(cardsPlayed.front().getNum());
         cardsPlayed.pop_front();
     }
 }
@@ -230,11 +232,41 @@ int checkWinner() {
     return winner;
 }
 
+void repartirCartas() {
+    for (int i = 0; i < NUM_PLAYERS; i++) {
+        for (int y = 0; y < 10; y++)
+        {
+            players[i].addCardToPlayer(deck.robarCarta());
+        }
+    }
+}
+
+void setTable() {
+    for (int i = 0; i < NUM_FILAS; i++)
+    {
+        filas[i].clear();
+        Card carta = deck.robarCarta();
+        filas[i].push_back(carta);
+        allPlayedCards.push_back(carta.getNum());
+    }
+}
+
+void restartRound() {
+    deck = Deck();
+    allPlayedCards.clear();
+    repartirCartas();
+    setTable();
+    cardsPlayed.clear();
+}
+
 void nextPlayer() {
     if (playersTurn + 1 >= NUM_PLAYERS) {
         playersTurn = 0;
         setCards();
         endCond();
+        if (players[0].getPlayersHand().getHand().empty()) {
+            restartRound();
+        }
     }
     else { playersTurn++; }
     display();
@@ -254,7 +286,7 @@ void playCard() {
     if (players[playersTurn].getPlayersHand().getHand().size() > 0) {
         int playedCard = -1;
         if (players[playersTurn].isAi()) {
-            playedCard = players[playersTurn].Ai->playCard(players[playersTurn].getPlayersHand(), filas);
+            playedCard = players[playersTurn].Ai->playCard(players[playersTurn].getPlayersHand(), filas,allPlayedCards);
         }
         else {
             playedCard = askCardToPlay();
@@ -277,22 +309,6 @@ bool askAi() {
         cin >> response;
     } while (!cin.fail() && response != 'y' && response != 'n');
     return (response == 'y') ? true : false;
-}
-
-void repartirCartas() {
-    for (int i = 0; i < NUM_PLAYERS; i++) {
-        for (int y = 0; y < 10; y++)
-        {
-            players[i].addCardToPlayer(deck.robarCarta());
-        }
-    }
-}
-
-void setTable() {
-    for (int i = 0; i < NUM_FILAS; i++)
-    {
-        filas[i].push_back(deck.robarCarta());
-    }
 }
 
 void printTuto() {
@@ -362,6 +378,7 @@ int main()
     srand(time(NULL));
     //tuto 
     printTuto();
+    
     int it = 0;
     if (test) {
         for (int  i = 0; i < NUM_PLAYERS; i++)
@@ -404,6 +421,7 @@ int main()
                 players[i] = player;
             }
         }
+        allPlayedCards.clear();
         endGame = false;
         deck = Deck();
         cardsPlayed.clear();
@@ -414,12 +432,6 @@ int main()
         //bucle game 
         display();
         while (!endGame) {
-            if (players[0].getPlayersHand().getHand().empty()) {
-                deck = Deck();
-                repartirCartas();
-                setTable();
-                cardsPlayed.clear();
-            }
             playCard();
             nextPlayer();
         }

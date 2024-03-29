@@ -34,6 +34,12 @@ int AI::playNearest(Hand myHand, list<Card> filas[4])
     return nearest;
 }
 
+int AI::playMontecarlo(Hand myHand, list<Card> filas[4], vector<int> playedCards)
+{
+
+    return 1;
+}
+
 int AI::smallestRowValue(list<Card> filas[4])
 {
     int smallest = 100,best = -1;
@@ -55,7 +61,7 @@ int AI::swapFila(list<Card> filas[4])
     return smallestRowValue(filas);
 }
 
-int AI::playCard(Hand myHand, list<Card> filas[4])
+int AI::playCard(Hand myHand, list<Card> filas[4], vector<int> playedCards)
 {
     switch (type)
     {
@@ -64,6 +70,9 @@ int AI::playCard(Hand myHand, list<Card> filas[4])
         break;
     case 2:
         return playNearest(myHand, filas);
+        break;
+    case 3:
+        return playMontecarlo(myHand, filas, playedCards);
         break;
     default:
         break;
