@@ -1,4 +1,5 @@
 #include "AI.hpp"
+#include <algorithm>
 
 int AI::playSmallest(Hand myHand, list<Card> filas[4])
 {
@@ -34,10 +35,90 @@ int AI::playNearest(Hand myHand, list<Card> filas[4])
     return nearest;
 }
 
+float AI::calculaProb(int actual, int ref ,vector<int> playedCards) {
+    int cantidad= 0,jugadas = 0 ;
+    float prob = 0;
+    //Calculamos la cantidad de numeros que hay entre la de la fila y el margen.
+    if (ref > actual) {
+        cantidad = actual - 1; //{1,2,3 ... actual}
+        for (int i = 1; i < cantidad; i++)
+        {
+            jugadas += (find(playedCards.begin(), playedCards.end(), actual - i) != playedCards.end()) ? 1 : 0;
+        }
+    }
+    else {
+        cantidad = actual - ref; // {ref ... actual}
+        for (int i = 1; i < cantidad; i++)
+        {
+            jugadas += (find(playedCards.begin(), playedCards.end(), i + ref) != playedCards.end()) ? 1 : 0;
+        }
+    }
+    //Las cartas ya jugadas que esten en esta franja
+    prob = cantidad - jugadas - 1;
+    float res = prob / NUM_CARTAS;
+    return res;
+}
+
+int getRowValue(list<Card> list) {
+    int points = 0;
+    for (auto carta : list) {
+        points += carta.getValue();
+    }
+    return points;
+}
+
+//Revisar si hacer Tree serch o algun tipo de probavilistico
+
+/*
+    Ramificacion de Cartas en la mano* numero de filas.
+    Por cada fila calculamos la prob de que el resultado sea positivo 
+    Primero se tiene en cuenta el numero de cartas de la Fila,
+    tambien el numero de Jugadores, en caso de que el numero de jugadores 
+    sea igual al numero de cartas restantes para llenar la fila
+    se calcula la probavilidad de la mejor carta para jugar en esa fila 
+    En el caso de que no se cumpla la primera condicion , esa fila sera 
+    segura para jugar.
+
+    En el caso en que tengamos una carta menor a cualquiera de las de las filas.
+    Se tendra que guardar la carta hasta que haya un valor total de la fila menor al, de otras jugadas.
+
+*/
+
 int AI::playMontecarlo(Hand myHand, list<Card> filas[4], vector<int> playedCards)
 {
-
-    return 1;
+    //ponderations
+    float playSafe = 0.5, discardSmallest = 0.4;
+    //
+    int card = 1 ,bestCard = 0;
+    float actual = 100 ,bestActual = 100, best = 100;
+    list<Card> hand = myHand.getHand();
+    for (auto cartaPlayer : hand) {
+        for (int i = 0; i < numFilas; i++) {
+            int filaNum = filas[i].back().getNum();
+            float prob = calculaProb(cartaPlayer.getNum(), filaNum, playedCards) * (numPlayers-1);
+            if (cartaPlayer.getNum() < filaNum) {
+                actual = prob * getRowValue(filas[i]) * discardSmallest;
+            }
+            else {
+                if (filas[i].size() + numPlayers >= 6) {
+                    actual = prob * getRowValue(filas[i]);
+                }
+                else
+                {
+                    actual = prob * getRowValue(filas[i]) *playSafe;
+                }
+            }
+            if (actual < bestActual) {
+                bestActual = actual;
+            }
+        }
+        if (bestActual < best) {
+            best = bestActual;
+            bestCard = card;
+        }
+        card++;
+    }
+    return bestCard;
 }
 
 int AI::smallestRowValue(list<Card> filas[4])

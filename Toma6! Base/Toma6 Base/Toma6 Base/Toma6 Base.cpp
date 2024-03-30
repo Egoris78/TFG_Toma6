@@ -18,8 +18,8 @@ static const int NUM_FILAS = 4;
 
 //tester part
 bool test = true;
-vector<int> IAPLAYERS{ 1,2 };
-int num_games = 25;
+vector<int> IAPLAYERS{ 3,2 };
+int num_games = 100;
 int winnerCount[NUM_PLAYERS];
 
 Deck deck;
