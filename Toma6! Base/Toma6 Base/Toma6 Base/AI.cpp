@@ -87,7 +87,7 @@ int getRowValue(list<Card> list) {
 int AI::playMontecarlo(Hand myHand, list<Card> filas[4], vector<int> playedCards)
 {
     //ponderations
-    float playSafe = 0.5, discardSmallest = 0.4;
+    float playSafe = 0.5, discardSmallest = 0.5;
     //
     int card = 1 ,bestCard = 0;
     float actual = 100 ,bestActual = 100, best = 100;

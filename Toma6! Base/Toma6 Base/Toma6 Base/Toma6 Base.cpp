@@ -19,8 +19,10 @@ static const int NUM_FILAS = 4;
 //tester part
 bool test = true;
 vector<int> IAPLAYERS{ 3,2 };
-int num_games = 100;
+int num_games = 50;
 int winnerCount[NUM_PLAYERS];
+int winnerRoundCount[NUM_PLAYERS];
+int actualRoundPoints[NUM_PLAYERS];
 
 Deck deck;
 Player players[NUM_PLAYERS];
@@ -119,9 +121,11 @@ void displayPlayersHand() {
 }
 
 void display() {
-    system("CLS");
-    displayTable();
-    displayPlayersHand();
+    if (!test) {
+        system("CLS");
+        displayTable();
+        displayPlayersHand();
+    }
 }
 
 int nearValue(int cardNum) {
@@ -194,12 +198,16 @@ void setCards() {
             else {
                 fila = askFila(player);
             }
-            players[player].addPoints(getPointsFila(fila));
+            int points = getPointsFila(fila);
+            players[player].addPoints(points);
+            actualRoundPoints[player] += points;
             changeFila(fila);
         }
         else {
             if (filas[pos].size() >= 5) {
-                players[cardsPlayed.front().getPlayerId()].addPoints(getPointsFila(pos));
+                int points = getPointsFila(pos);
+                players[cardsPlayed.front().getPlayerId()].addPoints(points);
+                actualRoundPoints[cardsPlayed.front().getPlayerId()] += points;
                 changeFila(pos);
             }
             else {
@@ -251,8 +259,25 @@ void setTable() {
     }
 }
 
+void roundWinner() {
+    int best = 0,puntuation = actualRoundPoints[0];
+    for (int i = 1; i < NUM_PLAYERS; i++)
+    {
+        if (actualRoundPoints[i] < puntuation) {
+            puntuation = actualRoundPoints[1];
+            best = i;
+        }
+    }
+    for (int i = 0; i < NUM_PLAYERS; i++)
+    {
+        actualRoundPoints[i] = 0;
+    }
+    winnerRoundCount[best]++;
+}
+
 void restartRound() {
     deck = Deck();
+    roundWinner();
     allPlayedCards.clear();
     repartirCartas();
     setTable();
@@ -384,6 +409,7 @@ int main()
         for (int  i = 0; i < NUM_PLAYERS; i++)
         {
             winnerCount[i] = 0;
+            winnerRoundCount[i] = 0;
         }
     }
     do{
@@ -456,7 +482,8 @@ int main()
             cout << "The player " << i<< " with Ai ";
             int num = IAPLAYERS[i];
             cout << temp.listaT[num-1];
-            cout<< " won :" << winnerCount[i] << "times" << endl;
+            cout <<endl<< "    Won " << winnerRoundCount[i] <<" rounds" << endl;
+            cout<< "    Won :" << winnerCount[i] << " Games" << endl;
         }
     }
 }
