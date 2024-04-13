@@ -5,6 +5,7 @@
 #include <Windows.h>
 #include <chrono>
 #include <iostream>
+#include <fstream>
 /*
 Right Click on title bar of your running console application
 Select Properties
@@ -18,8 +19,12 @@ static const int NUM_FILAS = 4;
 
 //tester part
 bool test = true;
-vector<int> IAPLAYERS{ 3,2 };
-int num_games = 50;
+bool savingData = true;
+int savePlayerNum = 1; // 0...
+vector<int> IAPLAYERS{ 2,4 };
+int num_games = 3;
+std::ofstream outputFile("data/dataset.txt");
+//Tester variables
 int winnerCount[NUM_PLAYERS];
 int winnerRoundCount[NUM_PLAYERS];
 int actualRoundPoints[NUM_PLAYERS];
@@ -237,6 +242,14 @@ int checkWinner() {
             wiinnerPoints = players[i].getPoints();
         }
     }
+    if (savingData) {
+        if (outputFile.is_open()) {
+            outputFile << ")" << winner << "\n";
+        }
+        else {
+            std::cerr << "Error opening file\n";
+        }
+    }
     return winner;
 }
 
@@ -272,7 +285,31 @@ void roundWinner() {
     {
         actualRoundPoints[i] = 0;
     }
+    if (savingData) {
+        if (outputFile.is_open()) {
+            outputFile << ")" << best << "$";
+        }
+        else {
+            std::cerr << "Error opening file\n";
+        }
+    }
     winnerRoundCount[best]++;
+}
+
+void saveCardPlayers() {
+    if (savingData) {
+        if (outputFile.is_open()) {
+            outputFile << players[savePlayerNum].getCard(1).getNum();
+            for (int y = 1; y < 10; y++)
+            {
+                outputFile << "," << players[savePlayerNum].getCard(y+1).getNum();
+            }
+            outputFile << "/";
+        }
+        else {
+            std::cerr << "Error opening file\n";
+        }
+    }
 }
 
 void restartRound() {
@@ -280,12 +317,30 @@ void restartRound() {
     roundWinner();
     allPlayedCards.clear();
     repartirCartas();
+    if (savingData)
+        saveCardPlayers();
     setTable();
     cardsPlayed.clear();
 }
 
 void nextPlayer() {
     if (playersTurn + 1 >= NUM_PLAYERS) {
+        if (savingData) {
+            if (outputFile.is_open()) {
+                auto l_front = cardsPlayed.begin();
+                advance(l_front, savePlayerNum);
+                Card carta = *l_front;
+                outputFile << carta.getNum() << "," << carta.getValue() << "]";
+                for (int i = 0; i < NUM_FILAS; i++)
+                {
+                    outputFile << filas[i].back().getNum() << "," << filas[i].size() << "_";
+                }
+                outputFile << "}";
+            }
+            else {
+                std::cerr << "Error opening file\n";
+            }
+        }
         playersTurn = 0;
         setCards();
         endCond();
@@ -316,10 +371,8 @@ void playCard() {
         else {
             playedCard = askCardToPlay();
         }
-
         Card carta;
         carta = players[playersTurn].getCard(playedCard);
-
         players[playersTurn].playCard(playedCard);
         carta.setPlayerId(playersTurn);
         cardsPlayed.push_back(carta);
@@ -398,12 +451,87 @@ void printTuto() {
     cout << Display << endl;
 }
 
+vector<string> spliter(string text, string delimiter) {
+    vector<string> content;
+    size_t pos = 0;
+    string token;
+    while ((pos = text.find(delimiter)) != string::npos) {
+        token = text.substr(0, pos);
+        content.push_back(token);
+        text.erase(0, pos + delimiter.length());
+    }
+    content.push_back(text);
+    return content;
+}
+
+void read() {
+    ifstream MyReadFile("data/dataset.txt");
+    string tp;
+    vector<vector<bool>> winnersGames;
+    vector < vector<vector<int>>> handsGames;
+    vector < vector<vector<Card>>> cardPlayedGames;
+    vector < vector<vector<vector<vector<int>>>>> filasPlayedGames;
+
+    while (getline(MyReadFile, tp)) {
+        vector<bool> winners;
+        vector<string> res;
+        vector<vector<int>> hands;
+        vector<vector<Card>> cardPlayed;
+        vector<vector<vector<vector<int>>>> filasPlayed;
+        for (auto round : spliter(tp, "$")) {
+            if (round.size() > 0) {
+                res = spliter(round, ")");
+                winners.push_back(stoi(res.back()) == savePlayerNum);
+                res = spliter(res.front(), "/");
+                vector<int> actualHand;
+                for (auto num : spliter(res.front(), ",")) {
+                    actualHand.push_back(stoi(num));
+                }
+                hands.push_back(actualHand);
+                //spliter turn
+                vector<string> turns;
+                vector<Card> roundCards;
+                vector<vector<vector<int>>> filasRound;
+                for (auto turn : spliter(res.back(), "}")) {
+                    if (turn.size() > 0) {
+                        turns = spliter(turn, "]");
+                        //Cartas
+                        vector<string> temporal = spliter(turns.front(), ",");
+                        Card card = Card(stoi(temporal.front()), stoi(temporal.back()));
+                        roundCards.push_back(card);
+                        //Filas
+                        vector<vector<int>> filas;
+                        temporal = spliter(turns.back(), "_");
+                        for (auto fila : temporal) {
+                            if (fila.size() > 0) {
+                                vector<int> filaRes;
+                                for (auto num : spliter(fila, ",")) {
+                                    filaRes.push_back(stoi(num));
+                                }
+                                filas.push_back(filaRes);
+                            }
+                        }
+                        filasRound.push_back(filas);
+                    }
+                }
+                filasPlayed.push_back(filasRound);
+                cardPlayed.push_back(roundCards);
+            }  
+        }
+        filasPlayedGames.push_back(filasPlayed);
+        cardPlayedGames.push_back(cardPlayed);
+        handsGames.push_back(hands);
+        winnersGames.push_back(winners);
+    }
+    MyReadFile.close();
+}
+
 int main()
 {
     srand(time(NULL));
     //tuto 
     printTuto();
-    
+        
     int it = 0;
     if (test) {
         for (int  i = 0; i < NUM_PLAYERS; i++)
@@ -452,6 +580,8 @@ int main()
         deck = Deck();
         cardsPlayed.clear();
         repartirCartas();
+        if(savingData)
+            saveCardPlayers();
         //inizializar filas 
         setTable();
         system("CLS");
@@ -473,6 +603,7 @@ int main()
         cout << endl;
         it++;
     } while (test && it<num_games);
+    outputFile.close();
     if (test) {
         system("CLS");
         AI temp = AI();
@@ -486,4 +617,8 @@ int main()
             cout<< "    Won :" << winnerCount[i] << " Games" << endl;
         }
     }
+    if (savingData) {
+        read();
+    }
+    
 }

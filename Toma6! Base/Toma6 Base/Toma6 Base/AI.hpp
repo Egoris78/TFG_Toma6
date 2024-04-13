@@ -9,7 +9,7 @@ private:
 	int type;
 	static const int NUM_CARTAS = 104;
 public:
-	vector<string> listaT{ "Miedica","Lanzada","MonteCarlo"};
+	vector<string> listaT{ "Miedica","Lanzada","MonteCarlo","Aleatoria"};
 	AI() {};
 	AI(int NUM_PLAYERS, int NUM_FILAS, int t) { numPlayers = NUM_PLAYERS; numFilas = NUM_FILAS; type = t; }
 	int swapFila(list<Card> filas[4]);
@@ -18,6 +18,7 @@ public:
 	int playNearest(Hand myHand, list<Card> filas[4]);
 	float calculaProb(int actual, int ref, vector<int> playedCards);
 	int playMontecarlo(Hand myHand, list<Card> filas[4], vector<int>);
+	int playRand(Hand myHand);
 	int playCard(Hand, list<Card> filas[4],vector<int>);
 
 };

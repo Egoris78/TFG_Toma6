@@ -87,7 +87,7 @@ int getRowValue(list<Card> list) {
 int AI::playMontecarlo(Hand myHand, list<Card> filas[4], vector<int> playedCards)
 {
     //ponderations
-    float playSafe = 0.5, discardSmallest = 0.5;
+    float playSafe = 0.2, discardSmallest = 0.1;
     //
     int card = 1 ,bestCard = 0;
     float actual = 100 ,bestActual = 100, best = 100;
@@ -119,6 +119,11 @@ int AI::playMontecarlo(Hand myHand, list<Card> filas[4], vector<int> playedCards
         card++;
     }
     return bestCard;
+}
+
+int AI::playRand(Hand myHand) {
+    int num = rand() % myHand.getHand().size();
+    return num +1;
 }
 
 int AI::smallestRowValue(list<Card> filas[4])
@@ -154,6 +159,9 @@ int AI::playCard(Hand myHand, list<Card> filas[4], vector<int> playedCards)
         break;
     case 3:
         return playMontecarlo(myHand, filas, playedCards);
+        break;
+    case 4:
+        return playRand(myHand);
         break;
     default:
         break;
