@@ -22,7 +22,7 @@ bool test = true;
 bool savingData = true;
 int savePlayerNum = 1; // 0...
 vector<int> IAPLAYERS{ 2,4 };
-int num_games = 3;
+int num_games = 50;
 std::ofstream outputFile("data/dataset.txt");
 //Tester variables
 int winnerCount[NUM_PLAYERS];
@@ -467,7 +467,7 @@ vector<string> spliter(string text, string delimiter) {
 void read() {
     ifstream MyReadFile("data/dataset.txt");
     string tp;
-    vector<vector<bool>> winnersGames;
+    vector<vector<bool>> RoundWinners;
     vector < vector<vector<int>>> handsGames;
     vector < vector<vector<Card>>> cardPlayedGames;
     vector < vector<vector<vector<vector<int>>>>> filasPlayedGames;
@@ -521,7 +521,7 @@ void read() {
         filasPlayedGames.push_back(filasPlayed);
         cardPlayedGames.push_back(cardPlayed);
         handsGames.push_back(hands);
-        winnersGames.push_back(winners);
+        RoundWinners.push_back(winners);
     }
     MyReadFile.close();
 }
