@@ -1,7 +1,7 @@
 #include "AI.hpp"
 #include <algorithm>
 
-int AI::playSmallest(Hand myHand, list<Card> filas[4])
+int AI::playSmallest(Hand myHand, list<Card> filas[])
 {
     list<Card> hand = myHand.getHand();
     int actualLowstValue = 130, smallest = -1,i=1;
@@ -15,7 +15,7 @@ int AI::playSmallest(Hand myHand, list<Card> filas[4])
     return smallest;
 }
 
-int AI::playNearest(Hand myHand, list<Card> filas[4])
+int AI::playNearest(Hand myHand, list<Card> filas[])
 {
     int nearest = 1, diff = 100,actual = 1;
     list<Card> hand = myHand.getHand();
@@ -84,7 +84,7 @@ int getRowValue(list<Card> list) {
 
 */
 
-int AI::playMontecarlo(Hand myHand, list<Card> filas[4], vector<int> playedCards)
+int AI::playMontecarlo(Hand myHand, list<Card> filas[], vector<int> playedCards)
 {
     //ponderations
     float playSafe = 0.2, discardSmallest = 0.1;
@@ -126,7 +126,7 @@ int AI::playRand(Hand myHand) {
     return num +1;
 }
 
-int AI::smallestRowValue(list<Card> filas[4])
+int AI::smallestRowValue(list<Card> filas[])
 {
     int smallest = 100,best = -1;
     for (int fila = 0; fila < numFilas; fila++) {
@@ -142,12 +142,60 @@ int AI::smallestRowValue(list<Card> filas[4])
 	return best;
 }
 
-int AI::swapFila(list<Card> filas[4])
+int AI::swapFila(list<Card> filas[])
 {
     return smallestRowValue(filas);
 }
 
-int AI::playCard(Hand myHand, list<Card> filas[4], vector<int> playedCards)
+int getReward(int actualPuntuation,int lastPuntuation) {
+    int putuacion = 0;
+    putuacion += (lastPuntuation == actualPuntuation) ? 1 : 0;
+    putuacion += ((actualPuntuation - lastPuntuation) <= 2) ? 1 : 0;
+    return putuacion;
+}
+
+int AI::TrainQ(Hand myHand, list<Card> filas[], vector<int> playedCards,int actualPuntuation) {
+    if (lastState != -1) {
+        reward = getReward(actualPuntuation, lastPuntuation);
+        qTable[lastState-1][lastPos] += reward;
+    }
+    int media = 0;
+    for (int i = 0; i < 4; i++)
+    {
+        media += filas[i].back().getNum();
+    }
+    media = media / 4;
+    lastPos = media / (NUM_CARTAS / NUM_PARTITIONS);
+    int playedCard = playRand(myHand);
+    lastState = myHand.getCard(playedCard).getNum();
+    return playedCard;
+}
+
+int AI::playQTable(Hand myHand, list<Card> filas[])
+{
+    int media = 0;
+    for (int i = 0; i < 4; i++)
+    {
+        media += filas[i].back().getNum();
+    }
+    media = media / 4;
+    int pos = media / (NUM_CARTAS / NUM_PARTITIONS);
+    list<Card> hand = myHand.getHand();
+    int bestCarta = 1,actualCarta = 1,bestPuntuation = 0;
+
+    for (auto cartaPlayer : hand) {
+        int puntuacion = TrainedqTable[cartaPlayer.getNum() - 1][pos];
+        if (bestPuntuation < puntuacion) {
+            bestCarta = actualCarta;
+            bestPuntuation = puntuacion;
+        }
+        actualCarta++;
+    }
+    return bestCarta;
+}
+
+
+int AI::playCard(Hand myHand, list<Card> filas[], vector<int> playedCards, int actualPuntuation)
 {
     switch (type)
     {
@@ -162,6 +210,12 @@ int AI::playCard(Hand myHand, list<Card> filas[4], vector<int> playedCards)
         break;
     case 4:
         return playRand(myHand);
+        break;
+    case 5:
+        return TrainQ(myHand, filas, playedCards, actualPuntuation);
+        break;
+    case 6:
+        return playQTable(myHand, filas);
         break;
     default:
         break;

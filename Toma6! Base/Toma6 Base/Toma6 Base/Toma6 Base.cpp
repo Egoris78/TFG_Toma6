@@ -13,18 +13,21 @@ Select Layout
 Then set the window size.
 */
 using namespace std::chrono;
-
+static const int NUM_CARTAS = 104;
 static const int NUM_PLAYERS = 2;
 static const int NUM_FILAS = 4;
+static const int NUM_PARTITIONS = 6;
 
 //tester part
+bool saveTrain = false;
 bool test = true;
-bool savingData = true;
+bool savingData = false;
 int savePlayerNum = 1; // 0...
-vector<int> IAPLAYERS{ 2,4 };
-int num_games = 50;
+vector<int> IAPLAYERS{ 6,2 };
+int num_games = 100;
 std::ofstream outputFile("data/dataset.txt");
 //Tester variables
+vector<vector<int>>  qTable;
 int winnerCount[NUM_PLAYERS];
 int winnerRoundCount[NUM_PLAYERS];
 int actualRoundPoints[NUM_PLAYERS];
@@ -366,7 +369,7 @@ void playCard() {
     if (players[playersTurn].getPlayersHand().getHand().size() > 0) {
         int playedCard = -1;
         if (players[playersTurn].isAi()) {
-            playedCard = players[playersTurn].Ai->playCard(players[playersTurn].getPlayersHand(), filas,allPlayedCards);
+            playedCard = players[playersTurn].Ai->playCard(players[playersTurn].getPlayersHand(), filas,allPlayedCards, players[playersTurn].getPoints());
         }
         else {
             playedCard = askCardToPlay();
@@ -538,9 +541,18 @@ int main()
         {
             winnerCount[i] = 0;
             winnerRoundCount[i] = 0;
+            vector<int> particiones;
+            for (int i = 0; i < NUM_PARTITIONS; i++)
+            {
+                particiones.push_back(0);
+            }
+            for (int i = 0; i < NUM_CARTAS; i++)
+            {
+                qTable.push_back(particiones);
+            }
         }
     }
-    do{
+    do {
         if (test) {
             for (int i = 0; i < IAPLAYERS.size(); i++)
             {
@@ -580,11 +592,12 @@ int main()
         deck = Deck();
         cardsPlayed.clear();
         repartirCartas();
-        if(savingData)
+        if (savingData)
             saveCardPlayers();
         //inizializar filas 
         setTable();
-        system("CLS");
+        if(!test)
+            system("CLS");
         //bucle game 
         display();
         while (!endGame) {
@@ -594,14 +607,29 @@ int main()
         int winner = checkWinner();
         if (test) {
             winnerCount[winner]++;
+            system("CLS");
+            cout << it << endl;
+            if (saveTrain) {
+                vector<vector<int>> table = players[1].Ai->getQtable();
+                for (int i = 0; i < NUM_CARTAS; i++)
+                {
+                    for (int y = 0; y < NUM_PARTITIONS; y++)
+                    {
+                        qTable[i][y] += table[i][y];
+                    }
+                }
+            }
         }
-        cout << "The winner is ";
-        if (players[winner].isAi())
-            cout << "the player " << winner + 1;
-        else
-            cout << players[winner].getPlayerName();
-        cout << endl;
+        else {
+            cout << "The winner is ";
+            if (players[winner].isAi())
+                cout << "the player " << winner + 1;
+            else
+                cout << players[winner].getPlayerName();
+            cout << endl;
+        }
         it++;
+        
     } while (test && it<num_games);
     outputFile.close();
     if (test) {
@@ -615,6 +643,22 @@ int main()
             cout << temp.listaT[num-1];
             cout <<endl<< "    Won " << winnerRoundCount[i] <<" rounds" << endl;
             cout<< "    Won :" << winnerCount[i] << " Games" << endl;
+        }
+        if (saveTrain) {
+            std::ofstream qtable("data/QTable.txt");
+            if (qtable.is_open()) {
+                for (int i = 0; i < NUM_CARTAS; i++)
+                {
+                    for (int y = 0; y < NUM_PARTITIONS; y++)
+                    {
+                        qtable  << qTable[i][y] << ",";
+                    }
+                    qtable << "]";
+                }
+            }
+            else {
+                std::cerr << "Error opening file\n";
+            }
         }
     }
     if (savingData) {
