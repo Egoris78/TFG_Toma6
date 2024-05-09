@@ -194,8 +194,103 @@ int AI::playQTable(Hand myHand, list<Card> filas[])
     return bestCarta;
 }
 
+int getRewardCard(int actualPuntuation, int lastPuntuation, bool extra) {
+    int putuacion = 0;
+    putuacion += (lastPuntuation == actualPuntuation) ? 1 : 0;
+    putuacion += (((actualPuntuation - lastPuntuation) <= 2) && extra) ? 2 : 0;
+    putuacion += ((actualPuntuation - lastPuntuation) <= 2) ? 1 : 0;
+    return putuacion;
+}
 
-int AI::playCard(Hand myHand, list<Card> filas[], vector<int> playedCards, int actualPuntuation)
+int AI::TrainQCard(Hand myHand, list<Card> filas[], vector<int> playedCards, int actualPuntuation, int posJugada) {
+    for (int i = 0; i < numFilas; i++)
+    {
+        if (lastState != -1) {
+            reward = getRewardCard(actualPuntuation, lastPuntuation, (posJugada == i) ? true : false);
+            qTableCard[lastState - 1][lastFilas[i]-1] += reward;
+        }
+        lastFilas[i] = filas[i].back().getNum();
+    }
+    int playedCard = playRand(myHand);
+    lastState = myHand.getCard(playedCard).getNum();
+    return playedCard;
+}
+
+int AI::playQTableCard(Hand myHand, list<Card> filas[])
+{
+    list<Card> hand = myHand.getHand();
+    int bestCarta = 1,actualCarta = 1,bestPuntuation = 0;
+
+    for (auto cartaPlayer : hand) {
+        /*for (int i = 0; i < numFilas; i++)
+        {
+            int puntuacion = TrainedqTableCard[cartaPlayer.getNum() - 1][filas[i].back().getNum()-1];
+            if (bestPuntuation < puntuacion) {
+                bestCarta = actualCarta;
+                bestPuntuation = puntuacion;
+            }
+        }*/
+        int media = 0;
+        for (int i = 0; i < numFilas; i++)
+        {
+            media += TrainedqTableCard[cartaPlayer.getNum() - 1][filas[i].back().getNum() - 1];
+        }
+        media = media / numFilas;
+        if (bestPuntuation < media) {
+            bestCarta = actualCarta;
+            bestPuntuation = media;
+        }
+        actualCarta++;
+    }
+    return bestCarta;
+}
+
+int getRewardCardCount(int actualPuntuation, int lastPuntuation, bool extra) {
+    int putuacion = 0;
+    putuacion += (lastPuntuation == actualPuntuation) ? 1 : 0;
+    putuacion += (((actualPuntuation - lastPuntuation) <= 2) && extra) ? 2 : 0;
+    putuacion += ((actualPuntuation - lastPuntuation) <= 2) ? 1 : 0;
+    return putuacion;
+}
+
+int AI::TrainQCardCount(Hand myHand, list<Card> filas[], vector<int> playedCards, int actualPuntuation, int posJugada) {
+    for (int i = 0; i < numFilas; i++)
+    {
+        if (lastState != -1) {
+            reward = getRewardCardCount(actualPuntuation, lastPuntuation, (posJugada == i) ? true : false);
+            qTableCardCount[lastState - 1][lastFilas[i]-1][lastCount[i]-1] += reward;
+        }
+        lastFilas[i] = filas[i].back().getNum();
+        lastCount[i] = filas[i].size();
+    }
+    int playedCard = playRand(myHand);
+    lastState = myHand.getCard(playedCard).getNum();
+    return playedCard;
+}
+
+int AI::playQTableCardCount(Hand myHand, list<Card> filas[])
+{
+    list<Card> hand = myHand.getHand();
+    int bestCarta = 1,actualCarta = 1,bestPuntuation = 0;
+
+    for (auto cartaPlayer : hand) {
+        int media = 0;
+        for (int i = 0; i < numFilas; i++)
+        {
+            media += TrainedqTableCardCount[cartaPlayer.getNum() - 1][filas[i].back().getNum() - 1][filas[i].size()-1];
+        }
+        media = media / numFilas;
+        if (bestPuntuation < media) {
+            bestCarta = actualCarta;
+            bestPuntuation = media;
+        }
+        actualCarta++;
+    }
+    return bestCarta;
+}
+
+
+int AI::playCard(Hand myHand, list<Card> filas[], vector<int> playedCards, int actualPuntuation, int posJugada)
 {
     switch (type)
     {
@@ -216,6 +311,18 @@ int AI::playCard(Hand myHand, list<Card> filas[], vector<int> playedCards, int a
         break;
     case 6:
         return playQTable(myHand, filas);
+        break;
+    case 7:
+        return TrainQCard(myHand, filas, playedCards, actualPuntuation,posJugada);
+        break;
+    case 8:
+        return playQTableCard(myHand, filas);
+        break;
+    case 9:
+        return TrainQCardCount(myHand, filas, playedCards, actualPuntuation,posJugada);
+        break;
+    case 10:
+        return playQTableCardCount(myHand, filas);
         break;
     default:
         break;

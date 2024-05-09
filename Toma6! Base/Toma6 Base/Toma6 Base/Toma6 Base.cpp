@@ -20,17 +20,23 @@ static const int NUM_PARTITIONS = 6;
 
 //tester part
 bool saveTrain = false;
+bool saveTrainCard = false;
+bool saveTrainCardCount = false;
 bool test = true;
 bool savingData = false;
 int savePlayerNum = 1; // 0...
-vector<int> IAPLAYERS{ 6,2 };
+int aiPlayer = 0;
+vector<int> IAPLAYERS{ 10,2 };
 int num_games = 100;
 std::ofstream outputFile("data/dataset.txt");
 //Tester variables
 vector<vector<int>>  qTable;
+vector<vector<int>>  qTableCard;
+vector<vector<vector<int>>>  qTableCardCount;
 int winnerCount[NUM_PLAYERS];
 int winnerRoundCount[NUM_PLAYERS];
 int actualRoundPoints[NUM_PLAYERS];
+int posJugada;
 
 Deck deck;
 Player players[NUM_PLAYERS];
@@ -197,6 +203,9 @@ void setCards() {
     int pos = -2;
     while (!cardsPlayed.empty()) {
         pos =nearValue(cardsPlayed.front().getNum());
+        if ((saveTrainCard|| saveTrainCardCount) && cardsPlayed.front().getPlayerId() == aiPlayer) {
+            posJugada = pos;
+        }
         if (pos == -1) {
             int player = cardsPlayed.front().getPlayerId();
             int fila;
@@ -369,7 +378,7 @@ void playCard() {
     if (players[playersTurn].getPlayersHand().getHand().size() > 0) {
         int playedCard = -1;
         if (players[playersTurn].isAi()) {
-            playedCard = players[playersTurn].Ai->playCard(players[playersTurn].getPlayersHand(), filas,allPlayedCards, players[playersTurn].getPoints());
+            playedCard = players[playersTurn].Ai->playCard(players[playersTurn].getPlayersHand(), filas,allPlayedCards, players[playersTurn].getPoints(),posJugada);
         }
         else {
             playedCard = askCardToPlay();
@@ -542,13 +551,40 @@ int main()
             winnerCount[i] = 0;
             winnerRoundCount[i] = 0;
             vector<int> particiones;
-            for (int i = 0; i < NUM_PARTITIONS; i++)
-            {
-                particiones.push_back(0);
+            if (saveTrain) {
+                for (int i = 0; i < NUM_PARTITIONS; i++)
+                {
+                    particiones.push_back(0);
+                }
+                for (int i = 0; i < NUM_CARTAS; i++)
+                {
+                    qTable.push_back(particiones);
+                }
             }
-            for (int i = 0; i < NUM_CARTAS; i++)
-            {
-                qTable.push_back(particiones);
+            if (saveTrainCard) {
+                for (int i = 0; i < NUM_CARTAS; i++)
+                {
+                    particiones.push_back(0);
+                }
+                for (int i = 0; i < NUM_CARTAS; i++)
+                {
+                    qTableCard.push_back(particiones);
+                }
+            }
+            if (saveTrainCardCount) {
+                for (int i = 0; i < 5; i++)
+                {
+                    particiones.push_back(0);
+                }
+                vector<vector<int>> cantidad;
+                for (int i = 0; i < NUM_CARTAS; i++)
+                {
+                    cantidad.push_back(particiones);
+                }
+                for (int i = 0; i < NUM_CARTAS; i++)
+                {
+                    qTableCardCount.push_back(cantidad);
+                }
             }
         }
     }
@@ -618,6 +654,29 @@ int main()
                         qTable[i][y] += table[i][y];
                     }
                 }
+            } 
+            if (saveTrainCard) {
+                vector<vector<int>> table = players[0].Ai->getQtableCard();
+                for (int i = 0; i < NUM_CARTAS; i++)
+                {
+                    for (int y = 0; y < NUM_CARTAS; y++)
+                    {
+                        qTableCard[i][y] += table[i][y];
+                    }
+                }
+            }
+            if (saveTrainCardCount) {
+                vector<vector<vector<int>>> table = players[0].Ai->getQtableCardCount();
+                for (int i = 0; i < NUM_CARTAS; i++)
+                {
+                    for (int y = 0; y < NUM_CARTAS; y++)
+                    {
+                        for (int j = 0; j < 5; j++)
+                        {
+                            qTableCardCount[i][y][j] += table[i][y][j];
+                        }
+                    }
+                }
             }
         }
         else {
@@ -654,6 +713,41 @@ int main()
                         qtable  << qTable[i][y] << ",";
                     }
                     qtable << "]";
+                }
+            }
+            else {
+                std::cerr << "Error opening file\n";
+            }
+        }
+        if (saveTrainCard) {
+            std::ofstream qtableCard("data/QTableCard.txt");
+            if (qtableCard.is_open()) {
+                for (int i = 0; i < NUM_CARTAS; i++)
+                {
+                    for (int y = 0; y < NUM_CARTAS; y++)
+                    {
+                        qtableCard  << qTableCard[i][y] << ",";
+                    }
+                    qtableCard << "]";
+                }
+            }
+            else {
+                std::cerr << "Error opening file\n";
+            }
+        }
+        if (saveTrainCardCount) {
+            std::ofstream qtableCardCount("data/QTableCardCount.txt");
+            if (qtableCardCount.is_open()) {
+                for (int i = 0; i < NUM_CARTAS; i++)
+                {
+                    for (int y = 0; y < NUM_CARTAS; y++)
+                    {
+                        for (int j = 0; j < 5; j++) {
+                            qtableCardCount << qTableCardCount[i][y][j] << ",";
+                        }
+                        qtableCardCount << "|";
+                    }
+                    qtableCardCount << "]";
                 }
             }
             else {
