@@ -18,15 +18,17 @@ static const int NUM_PLAYERS = 2;
 static const int NUM_FILAS = 4;
 static const int NUM_PARTITIONS = 6;
 
+bool test = true;
+
 //tester part
 bool saveTrain = false;
 bool saveTrainCard = false;
 bool saveTrainCardCount = false;
-bool test = true;
+
 bool savingData = false;
 int savePlayerNum = 1; // 0...
 int aiPlayer = 0;
-vector<int> IAPLAYERS{ 10,2 };
+vector<int> IAPLAYERS{ 10, 11};
 int num_games = 100;
 std::ofstream outputFile("data/dataset.txt");
 //Tester variables

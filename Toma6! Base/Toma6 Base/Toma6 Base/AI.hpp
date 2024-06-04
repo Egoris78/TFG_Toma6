@@ -38,7 +38,7 @@ private:
 		return content;
 	}
 public:
-	vector<string> listaT{ "Miedica","Lanzada","MonteCarlo","Aleatoria","TrainQ(Usada para entrenar)","ModeloQ-Lerning","TrainQCard(Usada para entrenar)","ModeloQ-LerningCard","TrainQCardCount(Usada para entrenar)","ModeloQ-LerningCardCount" };
+	vector<string> listaT{ "Miedica","Lanzada","MonteCarlo","Aleatoria","TrainQ(Usada para entrenar)","ModeloQ-Lerning","TrainQCard(Usada para entrenar)","ModeloQ-LerningCard","TrainQCardCount(Usada para entrenar)","ModeloQ-LerningCardCount","Quimera"};
 	AI() {};
 	vector<vector<int>> getQtable() { return qTable; }
 	vector<vector<int>> getQtableCard() { return qTableCard; }
@@ -135,7 +135,7 @@ public:
 			}
 		}
 		//Q table QTableCArdCount loader
-		if (type == 10) {
+		if (type == 10 || type == 11) {
 			std::ifstream archivoCartaCount(filenameCardCount);
 			if (!archivoCartaCount.is_open()) {
 				std::cerr << "No se pudo abrir el archivo " << filenameCardCount << std::endl;
@@ -175,5 +175,6 @@ public:
 	int playQTableCard(Hand myHand, list<Card> filas[]);
 	int playQTableCardCount(Hand myHand, list<Card> filas[]);
 	int playCard(Hand, list<Card> filas[],vector<int>, int actualPuntuation, int posJugada);
+	int playQuimera(Hand myHand, list<Card> filas[]);
 
 };

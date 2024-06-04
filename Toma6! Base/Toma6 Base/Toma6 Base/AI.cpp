@@ -289,6 +289,27 @@ int AI::playQTableCardCount(Hand myHand, list<Card> filas[])
     return bestCarta;
 }
 
+int AI::playQuimera(Hand myHand, list<Card> filas[])
+{
+    list<Card> hand = myHand.getHand();
+    int bestCarta = 1, actualCarta = 1, bestPuntuation = 0;
+
+    for (auto cartaPlayer : hand) {
+        int media = 0;
+        for (int i = 0; i < numFilas; i++)
+        {
+            media += TrainedqTableCardCount[cartaPlayer.getNum() - 1][filas[i].back().getNum() - 1][filas[i].size() - 1] * getRowValue(filas[i]);
+        }
+        media = media / numFilas;
+        if (bestPuntuation < media) {
+            bestCarta = actualCarta;
+            bestPuntuation = media;
+        }
+        actualCarta++;
+    }
+    return bestCarta;
+}
+
 
 int AI::playCard(Hand myHand, list<Card> filas[], vector<int> playedCards, int actualPuntuation, int posJugada)
 {
@@ -323,6 +344,9 @@ int AI::playCard(Hand myHand, list<Card> filas[], vector<int> playedCards, int a
         break;
     case 10:
         return playQTableCardCount(myHand, filas);
+        break;
+    case 11:
+        return playQuimera(myHand, filas);
         break;
     default:
         break;
