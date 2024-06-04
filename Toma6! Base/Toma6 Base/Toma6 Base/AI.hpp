@@ -175,6 +175,6 @@ public:
 	int playQTableCard(Hand myHand, list<Card> filas[]);
 	int playQTableCardCount(Hand myHand, list<Card> filas[]);
 	int playCard(Hand, list<Card> filas[],vector<int>, int actualPuntuation, int posJugada);
-	int playQuimera(Hand myHand, list<Card> filas[]);
+	int playQuimera(Hand myHand, list<Card> filas[], vector<int> playedCards);
 
 };

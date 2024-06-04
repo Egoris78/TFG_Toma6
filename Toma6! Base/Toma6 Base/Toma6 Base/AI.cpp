@@ -289,7 +289,7 @@ int AI::playQTableCardCount(Hand myHand, list<Card> filas[])
     return bestCarta;
 }
 
-int AI::playQuimera(Hand myHand, list<Card> filas[])
+int AI::playQuimera(Hand myHand, list<Card> filas[], vector<int> playedCards)
 {
     list<Card> hand = myHand.getHand();
     int bestCarta = 1, actualCarta = 1, bestPuntuation = 0;
@@ -298,7 +298,8 @@ int AI::playQuimera(Hand myHand, list<Card> filas[])
         int media = 0;
         for (int i = 0; i < numFilas; i++)
         {
-            media += TrainedqTableCardCount[cartaPlayer.getNum() - 1][filas[i].back().getNum() - 1][filas[i].size() - 1] * getRowValue(filas[i]);
+            //media += TrainedqTableCardCount[cartaPlayer.getNum() - 1][filas[i].back().getNum() - 1][filas[i].size() - 1] * getRowValue(filas[i]);
+            media += TrainedqTableCardCount[cartaPlayer.getNum() - 1][filas[i].back().getNum() - 1][filas[i].size() - 1] * (1-calculaProb(cartaPlayer.getNum(), filas[i].back().getNum(), playedCards)) * (numPlayers - 1);
         }
         media = media / numFilas;
         if (bestPuntuation < media) {
@@ -346,7 +347,7 @@ int AI::playCard(Hand myHand, list<Card> filas[], vector<int> playedCards, int a
         return playQTableCardCount(myHand, filas);
         break;
     case 11:
-        return playQuimera(myHand, filas);
+        return playQuimera(myHand, filas, playedCards);
         break;
     default:
         break;
