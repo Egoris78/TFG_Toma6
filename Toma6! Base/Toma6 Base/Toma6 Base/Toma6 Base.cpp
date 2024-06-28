@@ -18,7 +18,8 @@ static const int NUM_PLAYERS = 2;
 static const int NUM_FILAS = 4;
 static const int NUM_PARTITIONS = 6;
 
-bool test = true;
+//Activar para poder hacer test entre Modelos
+bool test = false;
 
 //tester part
 bool saveTrain = false;
@@ -28,6 +29,7 @@ bool saveTrainCardCount = false;
 bool savingData = false;
 int savePlayerNum = 1; // 0...
 int aiPlayer = 0;
+//Introducir modelos para testear
 vector<int> IAPLAYERS{ 10, 11};
 int num_games = 100;
 std::ofstream outputFile("data/dataset.txt");
